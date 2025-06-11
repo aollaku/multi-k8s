@@ -48,7 +48,8 @@ before_install:
       gcloud container clusters get-credentials multi-cluster --zone us-central1-a --project multi-k8s-462503
 
   # Docker Hub login using access token
-  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
 
   # Build test Docker image
   - docker build -t aollaku/react-test -f ./client/Dockerfile.dev ./client
