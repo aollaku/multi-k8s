@@ -12,8 +12,8 @@ env:
     - GKE_CLUSTER_NAME=multi-cluster
 
 before_install:
-  # Install kubectl
-  - curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+  # Install kubectl safely in Travis CI using bash
+  - bash -c 'curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"'
   - chmod +x kubectl
   - sudo mv kubectl /usr/local/bin/
 
