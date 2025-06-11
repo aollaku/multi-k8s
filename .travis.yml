@@ -17,31 +17,31 @@ before_install:
 
   # Authenticate with GCP and configure project
   - >
-    docker run --rm
-    -v $PWD:/app
-    -v $HOME/.config:/root/.config
-    google/cloud-sdk:alpine
+    docker run --rm \
+    -v "$PWD:/app" \
+    -v "$HOME/.config:/root/.config" \
+    google/cloud-sdk:alpine \
     gcloud auth activate-service-account --key-file=/app/service-account.json
 
   - >
-    docker run --rm
-    -v $PWD:/app
-    -v $HOME/.config:/root/.config
-    google/cloud-sdk:alpine
+    docker run --rm \
+    -v "$PWD:/app" \
+    -v "$HOME/.config:/root/.config" \
+    google/cloud-sdk:alpine \
     gcloud config set project multi-k8s-462503
 
   - >
-    docker run --rm
-    -v $PWD:/app
-    -v $HOME/.config:/root/.config
-    google/cloud-sdk:alpine
+    docker run --rm \
+    -v "$PWD:/app" \
+    -v "$HOME/.config:/root/.config" \
+    google/cloud-sdk:alpine \
     gcloud config set compute/zone us-central1-a
 
   - >
-    docker run --rm
-    -v $PWD:/app
-    -v $HOME/.config:/root/.config
-    google/cloud-sdk:alpine
+    docker run --rm \
+    -v "$PWD:/app" \
+    -v "$HOME/.config:/root/.config" \
+    google/cloud-sdk:alpine \
     gcloud container clusters get-credentials multi-cluster --zone us-central1-a --project multi-k8s-462503
 
   # Docker login and build test image
