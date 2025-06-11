@@ -9,10 +9,10 @@ env:
     - SHA=$(git rev-parse HEAD)
 
 before_install:
-  # Decrypt GCP service account credentials
+  # Decrypt GCP service account key
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
 
-  # Pull Cloud SDK image with kubectl
+  # Pull Google Cloud SDK with kubectl support
   - docker pull google/cloud-sdk:alpine
 
   # Authenticate with GCP
@@ -39,7 +39,7 @@ before_install:
       google/cloud-sdk:alpine \
       gcloud config set compute/zone us-central1-a
 
-  # Get GKE credentials
+  # Get GKE cluster credentials
   - |
     docker run --rm \
       -v "$PWD:/app" \
@@ -47,8 +47,10 @@ before_install:
       google/cloud-sdk:alpine \
       gcloud container clusters get-credentials multi-cluster --zone us-central1-a --project multi-k8s-462503
 
-  # Docker login and build test image
+  # Docker login using Docker Hub access token
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+  # Build test Docker image
   - docker build -t aollaku/react-test -f ./client/Dockerfile.dev ./client
 
 script:
