@@ -15,6 +15,8 @@ docker push aollaku/multi-client:$SHA
 docker push aollaku/multi-server:$SHA
 docker push aollaku/multi-worker:$SHA
 
+kubectl apply -f /app/k8s/ --validate=false
+
 echo "🚀 Applying Kubernetes configs..."
 docker run --rm \
   -v "$PWD:/app" \
