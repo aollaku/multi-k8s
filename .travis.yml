@@ -6,10 +6,10 @@ services:
 env:
   global:
     - IMAGE_TAG=latest
-    - DOCKER_REPO=your-dockerhub-username
-    - GCLOUD_PROJECT=your-gcp-project-id
-    - GCP_ZONE=your-cluster-zone
-    - GKE_CLUSTER_NAME=your-cluster-name
+    - DOCKER_REPO=aollaku
+    - GCLOUD_PROJECT=multi-k8s-462503
+    - GCP_ZONE=us-central1-a 
+    - GKE_CLUSTER_NAME=multi-cluster
 
 before_install:
   # Install kubectl
