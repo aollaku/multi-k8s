@@ -9,46 +9,50 @@ env:
     - SHA=$(git rev-parse HEAD)
 
 before_install:
-  # Decrypt service account key
+  # Decrypt GCP service account credentials
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
 
-  # Pull Cloud SDK image with kubectl pre-installed
+  # Pull Cloud SDK image with kubectl
   - docker pull google/cloud-sdk:alpine
 
-  # Authenticate with GCP and configure project
-  - >
+  # Authenticate with GCP
+  - |
     docker run --rm \
-    -v "$PWD:/app" \
-    -v "$HOME/.config:/root/.config" \
-    google/cloud-sdk:alpine \
-    gcloud auth activate-service-account --key-file=/app/service-account.json
+      -v "$PWD:/app" \
+      -v "$HOME/.config:/root/.config" \
+      google/cloud-sdk:alpine \
+      gcloud auth activate-service-account --key-file=/app/service-account.json
 
-  - >
+  # Set GCP project
+  - |
     docker run --rm \
-    -v "$PWD:/app" \
-    -v "$HOME/.config:/root/.config" \
-    google/cloud-sdk:alpine \
-    gcloud config set project multi-k8s-462503
+      -v "$PWD:/app" \
+      -v "$HOME/.config:/root/.config" \
+      google/cloud-sdk:alpine \
+      gcloud config set project multi-k8s-462503
 
-  - >
+  # Set compute zone
+  - |
     docker run --rm \
-    -v "$PWD:/app" \
-    -v "$HOME/.config:/root/.config" \
-    google/cloud-sdk:alpine \
-    gcloud config set compute/zone us-central1-a
+      -v "$PWD:/app" \
+      -v "$HOME/.config:/root/.config" \
+      google/cloud-sdk:alpine \
+      gcloud config set compute/zone us-central1-a
 
-  - >
+  # Get GKE credentials
+  - |
     docker run --rm \
-    -v "$PWD:/app" \
-    -v "$HOME/.config:/root/.config" \
-    google/cloud-sdk:alpine \
-    gcloud container clusters get-credentials multi-cluster --zone us-central1-a --project multi-k8s-462503
+      -v "$PWD:/app" \
+      -v "$HOME/.config:/root/.config" \
+      google/cloud-sdk:alpine \
+      gcloud container clusters get-credentials multi-cluster --zone us-central1-a --project multi-k8s-462503
 
   # Docker login and build test image
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t aollaku/react-test -f ./client/Dockerfile.dev ./client
 
 script:
+  # Run tests
   - docker run -e CI=true aollaku/react-test npm test
 
 deploy:
