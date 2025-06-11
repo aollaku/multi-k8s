@@ -8,23 +8,21 @@ env:
     - IMAGE_TAG=latest
     - DOCKER_REPO=aollaku
     - GCLOUD_PROJECT=multi-k8s-462503
-    - GCP_ZONE=us-central1-a 
+    - GCP_ZONE=us-central1-a
     - GKE_CLUSTER_NAME=multi-cluster
 
 before_install:
-  # Install kubectl safely in Travis CI using bash
-  - bash -c 'curl -LO "https://dl.k8s.io/release/$(curl -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"'
+  # Install kubectl (version pinned for stability)
+  - curl -LO https://dl.k8s.io/release/v1.30.0/bin/linux/amd64/kubectl
   - chmod +x kubectl
   - sudo mv kubectl /usr/local/bin/
 
   # Install Google Cloud SDK
-  - curl -sSL https://sdk.cloud.google.com | bash
+  - curl -sSL https://sdk.cloud.google.com | bash > /dev/null
   - source $HOME/google-cloud-sdk/path.bash.inc
 
-  # Decode service account key
+  # Decode and activate GCP service account
   - echo "$GCLOUD_KEY_FILE" | base64 --decode > ${HOME}/gcloud-key.json
-
-  # Authenticate with GCP
   - gcloud auth activate-service-account --key-file=${HOME}/gcloud-key.json
   - gcloud config set project $GCLOUD_PROJECT
   - gcloud config set compute/zone $GCP_ZONE
@@ -36,11 +34,11 @@ script:
   - docker build -t $DOCKER_REPO/multi-server:$IMAGE_TAG ./server
   - docker build -t $DOCKER_REPO/multi-worker:$IMAGE_TAG ./worker
 
-  # Push images to Docker Hub
+  # Push Docker images to Docker Hub
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker push $DOCKER_REPO/multi-client:$IMAGE_TAG
   - docker push $DOCKER_REPO/multi-server:$IMAGE_TAG
   - docker push $DOCKER_REPO/multi-worker:$IMAGE_TAG
 
-  # Deploy to Kubernetes
+  # Deploy to Kubernetes cluster
   - kubectl apply -f ./k8s
