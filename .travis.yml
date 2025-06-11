@@ -47,8 +47,8 @@ before_install:
       google/cloud-sdk:alpine \
       gcloud container clusters get-credentials multi-cluster --zone us-central1-a --project multi-k8s-462503
 
-  # Docker login using Docker Hub access token
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  # Docker login (fallback method for CI)
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
 
   # Build test Docker image
   - docker build -t aollaku/react-test -f ./client/Dockerfile.dev ./client
