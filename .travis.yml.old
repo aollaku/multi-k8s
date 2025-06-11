@@ -1,0 +1,110 @@
+sudo: required
+
+services:
+  - docker
+
+env:
+  global:
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+    - SHA=$(git rev-parse HEAD)
+
+before_install:
+  # Decrypt service account credentials
+  - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
+
+  # Prepare Docker volumes
+  - mkdir -p $HOME/.kube
+  - docker pull google/cloud-sdk:latest
+
+  # Authenticate to Google Cloud
+  - |
+    docker run --rm \
+      -v "$PWD:/app" \
+      -v "$HOME/.config:/root/.config" \
+      -v "$HOME/.kube:/root/.kube" \
+      google/cloud-sdk:latest \
+      gcloud auth activate-service-account --key-file=/app/service-account.json
+
+  # Set GCP project and compute zone
+  - |
+    docker run --rm \
+      -v "$PWD:/app" \
+      -v "$HOME/.config:/root/.config" \
+      -v "$HOME/.kube:/root/.kube" \
+      google/cloud-sdk:latest \
+      gcloud config set project multi-k8s-462503
+
+  - |
+    docker run --rm \
+      -v "$PWD:/app" \
+      -v "$HOME/.config:/root/.config" \
+      -v "$HOME/.kube:/root/.kube" \
+      google/cloud-sdk:latest \
+      gcloud config set compute/zone us-central1-a
+
+  # Fetch GKE credentials and persist config
+  - |
+    docker run --rm \
+      -v "$PWD:/app" \
+      -v "$HOME/.config:/root/.config" \
+      -v "$HOME/.kube:/root/.kube" \
+      google/cloud-sdk:latest \
+      gcloud container clusters get-credentials multi-cluster --zone us-central1-a --project multi-k8s-462503
+
+  # Docker login using access token
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+  # Build test image
+  - docker build -t aollaku/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run -e CI=true aollaku/react-test npm test -- --coverage
+
+deploy:
+  provider: script
+  script: bash ./deploy.sh
+  on:
+    branch: master
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
