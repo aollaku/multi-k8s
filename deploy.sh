@@ -11,8 +11,8 @@ docker push aollaku/multi-server:$SHA
 docker push aollaku/multi-worker:$SHA
 
 
-kubectl apply -f k8s
+kubectl apply -f k8s/
 
-kubectl set image deployments/server-deployment server=aollaku/multi-server:$SHA
-kubectl set image deployments/client-deployment client=aollaku/multi-client:$SHA
-kubectl set image deployments/worker-deployment worker=aollaku/multi-worker:$SHA
+#kubectl set image deployments/server-deployment server=aollaku/multi-server:$SHA
+#kubectl set image deployments/client-deployment client=aollaku/multi-client:$SHA
+#kubectl set image deployments/worker-deployment worker=aollaku/multi-worker:$SHA
