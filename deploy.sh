@@ -14,21 +14,20 @@ docker push aollaku/multi-client:$SHA
 docker push aollaku/multi-server:$SHA
 docker push aollaku/multi-worker:$SHA
 
-echo "Applying Kubernetes manifests..."
+echo "Applying Kubernetes manifests using cloud-sdk:latest..."
 docker run --rm \
   -v "$PWD:/app" \
   -v "$HOME/.config:/root/.config" \
-  google/cloud-sdk:alpine \
+  google/cloud-sdk:latest \
   kubectl apply -f /app/k8s/
 
-# If setting images
+# Optionally set images
 # docker run --rm \
 #   -v "$PWD:/app" \
 #   -v "$HOME/.config:/root/.config" \
-#   google/cloud-sdk:alpine \
-#   kubectl set image deployments/server-deployment server=aollaku/multi-server:$SHA
+#   google/cloud-sdk:latest \
+#   kubectl set image deployments/client-deployment client=aollaku/multi-client:$SHA
 
-echo "✅ Deployment complete."
 
 
 
