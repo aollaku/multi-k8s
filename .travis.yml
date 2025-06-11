@@ -1,35 +1,56 @@
 sudo: required
+
 services:
   - docker
+
 env:
-   global: 
-     - SHA=$(git rev-parse HEAD)
-     - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+  global:
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+    - SHA=$(git rev-parse HEAD)
+
 before_install:
+  # Decrypt service account key
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
+
+  # Pull Cloud SDK image with kubectl pre-installed
   - docker pull google/cloud-sdk:alpine
+
+  # Authenticate with GCP and configure project
   - >
-    docker run --rm -v $PWD:/app -v $HOME/.config:/root/.config
+    docker run --rm
+    -v $PWD:/app
+    -v $HOME/.config:/root/.config
     google/cloud-sdk:alpine
     gcloud auth activate-service-account --key-file=/app/service-account.json
-  - >
-    docker run --rm -v $PWD:/app -v $HOME/.config:/root/.config
-    google/cloud-sdk:alpine
-    gcloud config set project your-gcp-project-id
-  - >
-    docker run --rm -v $PWD:/app -v $HOME/.config:/root/.config
-    google/cloud-sdk:alpine
-    gcloud container clusters get-credentials multi-cluster -- us-central1-a --project multi-k8s-462503
 
-  - gcloud auth activate-service-account --key-file service-account.json
-  - gcloud config set project multi-k8s-462503
-  - gcloud config set compute/zone us-central1-a
-  - gcloud container clusters get-credentials multi-cluster
+  - >
+    docker run --rm
+    -v $PWD:/app
+    -v $HOME/.config:/root/.config
+    google/cloud-sdk:alpine
+    gcloud config set project multi-k8s-462503
+
+  - >
+    docker run --rm
+    -v $PWD:/app
+    -v $HOME/.config:/root/.config
+    google/cloud-sdk:alpine
+    gcloud config set compute/zone us-central1-a
+
+  - >
+    docker run --rm
+    -v $PWD:/app
+    -v $HOME/.config:/root/.config
+    google/cloud-sdk:alpine
+    gcloud container clusters get-credentials multi-cluster --zone us-central1-a --project multi-k8s-462503
+
+  # Docker login and build test image
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t aollaku/react-test -f ./client/Dockerfile.dev ./client
 
 script:
   - docker run -e CI=true aollaku/react-test npm test
+
 deploy:
   provider: script
   script: bash ./deploy.sh
