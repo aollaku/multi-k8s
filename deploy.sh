@@ -17,33 +17,8 @@ docker push aollaku/multi-worker:$SHA
 
 
 
-echo "🚀 Applying Kubernetes configs..."
-docker run --rm \
-  -v "$PWD:/app" \
-  -v "$HOME/.kube:/root/.kube" \
-  google/cloud-sdk:latest \
-  kubectl apply -f /app/k8s/
+kubectl apply -f /app/k8s/ --validate=false
 
-echo "🎯 Updating Kubernetes deployments..."
-docker run --rm \
-  -v "$PWD:/app" \
-  -v "$HOME/.kube:/root/.kube" \
-  google/cloud-sdk:latest \
-  kubectl set image deployments/client-deployment client=aollaku/multi-client:$SHA
-
-docker run --rm \
-  -v "$PWD:/app" \
-  -v "$HOME/.kube:/root/.kube" \
-  google/cloud-sdk:latest \
-  kubectl set image deployments/server-deployment server=aollaku/multi-server:$SHA
-
-docker run --rm \
-  -v "$PWD:/app" \
-  -v "$HOME/.kube:/root/.kube" \
-  google/cloud-sdk:latest \
-  kubectl set image deployments/worker-deployment worker=aollaku/multi-worker:$SHA
-
-echo "✅ Deployment complete."
 
 
 ####
