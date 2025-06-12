@@ -17,13 +17,13 @@ before_install:
   - chmod +x kubectl
   - sudo mv kubectl /usr/local/bin/
 
-  # Install Google Cloud SDK (non-interactive, pinned version)
+  # Install Google Cloud SDK (non-interactive, pinned)
   - curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-443.0.0-linux-x86_64.tar.gz
   - tar -xzf google-cloud-sdk-443.0.0-linux-x86_64.tar.gz
   - ./google-cloud-sdk/install.sh --quiet
   - source ./google-cloud-sdk/path.bash.inc
 
-  # Decode and activate GCP service account
+  # Authenticate with GCP
   - echo "$GCLOUD_KEY_FILE" | base64 --decode > ${HOME}/gcloud-key.json
   - gcloud auth activate-service-account --key-file=${HOME}/gcloud-key.json
   - gcloud config set project $GCLOUD_PROJECT
@@ -36,11 +36,11 @@ script:
   - docker build -t $DOCKER_REPO/multi-server:$IMAGE_TAG ./server
   - docker build -t $DOCKER_REPO/multi-worker:$IMAGE_TAG ./worker
 
-  # Push Docker images to Docker Hub
+  # Push to Docker Hub
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker push $DOCKER_REPO/multi-client:$IMAGE_TAG
   - docker push $DOCKER_REPO/multi-server:$IMAGE_TAG
   - docker push $DOCKER_REPO/multi-worker:$IMAGE_TAG
 
-  # Deploy to GKE
+  # Deploy to Kubernetes
   - kubectl apply -f ./k8s
