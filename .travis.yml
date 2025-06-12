@@ -24,8 +24,8 @@ before_install:
   - source ./google-cloud-sdk/path.bash.inc
 
   # Authenticate with GCP
-  - echo "$GCLOUD_KEY_FILE" | base64 --decode > ${HOME}/gcloud-key.json
-  - gcloud auth activate-service-account --key-file=${HOME}/gcloud-key.json
+  - echo "$GCLOUD_KEY_FILE" | base64 --decode > ${HOME}/service.account.json
+  - gcloud auth activate-service-account --key-file=${HOME}/service.account.json
   - gcloud config set project $GCLOUD_PROJECT
   - gcloud config set compute/zone $GCP_ZONE
   - gcloud container clusters get-credentials $GKE_CLUSTER_NAME
