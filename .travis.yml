@@ -10,6 +10,7 @@ env:
     - GCLOUD_PROJECT=multi-k8s-462503
     - GCP_ZONE=us-central1-a
     - GKE_CLUSTER_NAME=multi-cluster
+    - USE_GKE_GCLOUD_AUTH_PLUGIN=True
 
 before_install:
   # Install kubectl
@@ -23,7 +24,10 @@ before_install:
   - ./google-cloud-sdk/install.sh --quiet
   - source ./google-cloud-sdk/path.bash.inc
 
-  # Decrypt the service account key
+  # ✅ Install GKE auth plugin
+  - gcloud components install gke-gcloud-auth-plugin --quiet
+
+  # Decrypt the service account JSON file using OpenSSL
   - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out ${HOME}/gcloud-key.json -d
 
   # Authenticate with GCP
